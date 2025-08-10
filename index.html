@@ -16,17 +16,6 @@
     --card:#fff;
     --shadow: 0 10px 30px rgba(0,0,0,.07);
     --radius: 18px;
-    --border: rgba(0,0,0,.08);
-    --pill-bg:#f1f5f9;
-  }
-  body.dark{
-    --bg1:#0f172a;
-    --bg2:#1e293b;
-    --ink:#f1f5f9;
-    --ink-secondary:#94a3b8;
-    --card:#1e293b;
-    --border: rgba(255,255,255,.1);
-    --pill-bg:#334155;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -43,7 +32,6 @@
     border-bottom:1px solid rgba(0,0,0,.06);
   }
   .wrap{max-width:980px;margin:0 auto;padding:24px}
-  header .wrap{position:relative}
   .title{
     display:flex;align-items:center;gap:12px;
   }
@@ -58,7 +46,7 @@
   }
   .tab-btn{
     border:none;padding:10px 14px;border-radius:999px;
-    background:var(--card);box-shadow: var(--shadow);cursor:pointer;
+    background:#fff;box-shadow: var(--shadow);cursor:pointer;
     color:var(--ink-secondary);font-weight:600;letter-spacing:.2px
   }
   .tab-btn.active{background:var(--ink);color:#fff}
@@ -77,8 +65,8 @@
   .section-title{margin:0 0 10px 0;font-size:18px}
   .muted{color:var(--ink-secondary);font-size:12px}
   input[type="text"], input[type="number"], textarea{
-    width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);
-    background:var(--card);font-size:14px;outline:none
+    width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);
+    background:#fff;font-size:14px;outline:none
   }
   textarea{min-height:160px;resize:vertical}
   .row{display:flex;gap:10px;align-items:center}
@@ -87,26 +75,24 @@
     border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;
     background:var(--accent);color:#fff;box-shadow: var(--shadow)
   }
-  .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--border)}
-  .btn.sm{padding:6px 10px;font-size:12px}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.08)}
   .btn.ok{background:var(--ok)}
   .btn.warn{background:var(--warn)}
   ul.tasks{list-style:none;margin:10px 0 0 0;padding:0}
   .task{
     display:flex;align-items:center;gap:10px;
-    padding:10px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;background:var(--card);
+    padding:10px;border:1px solid rgba(0,0,0,.06);border-radius:12px;margin-bottom:10px;background:#fff;
   }
   .task.done{opacity:.6;text-decoration:line-through}
   .spacer{flex:1}
-  .pill{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--pill-bg)}
+  .pill{font-size:12px;padding:6px 10px;border-radius:999px;background:#f1f5f9}
   .counts{display:flex;gap:8px;flex-wrap:wrap}
   .progress-wrap{height:10px;background:#eef2ff;border-radius:999px;overflow:hidden}
   .progress{height:100%;width:0%;background:var(--accent);transition:width .2s ease}
   .timer-big{font-size:48px;font-weight:800;letter-spacing:1px;margin:10px 0}
   .preview{
-    border:1px dashed var(--border);border-radius:12px;padding:12px;background:var(--card);max-height:340px;overflow:auto
+    border:1px dashed rgba(0,0,0,.1);border-radius:12px;padding:12px;background:#fafafa;max-height:340px;overflow:auto
   }
-  #themeToggle{position:absolute;top:24px;right:24px}
   .tip{font-size:12px;color:#666;margin-top:8px}
   footer{padding:20px;text-align:center;color:#666}
   code.kbd{
@@ -130,7 +116,6 @@
         <button class="tab-btn" data-tab="timer" role="tab" aria-selected="false">タイマー</button>
         <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false">ノート</button>
       </div>
-      <button id="themeToggle" class="btn ghost sm" aria-label="テーマ切替">🌙</button>
     </div>
   </header>
 
@@ -148,7 +133,6 @@
           <span class="pill" id="cntOpen">Open 0</span>
           <span class="pill" id="cntDone">Done 0</span>
         </div>
-        <input id="taskSearch" type="text" placeholder="タスク検索..." style="margin-top:10px" />
         <ul class="tasks" id="taskList" aria-live="polite"></ul>
       </div>
       <div class="card">
@@ -215,8 +199,7 @@
     tasks: [],
     sessions: [],
     settings: {work:25, break:5},
-    note: '',
-    theme: 'light'
+    note: ''
   };
 
   function load(){
@@ -228,25 +211,14 @@
     }catch(e){ console.warn('load failed', e); }
   }
 
-function save(){
-  try{
-    localStorage.setItem(storageKey, JSON.stringify(state));
-  }catch(e){ console.warn('save failed', e); }
-}
+  function save(){
+    try{
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }catch(e){ console.warn('save failed', e); }
+  }
 
- const themeToggle = $("#themeToggle");
- function applyTheme(){
-   document.body.classList.toggle('dark', state.theme==='dark');
-   themeToggle.textContent = state.theme === 'dark' ? '☀️' : '🌙';
- }
- themeToggle.addEventListener('click', ()=>{
-   state.theme = (state.theme==='dark') ? 'light' : 'dark';
-   applyTheme();
-   save();
- });
-
-// --- tabs ---
-$$(".tab-btn").forEach(btn=>{
+  // --- tabs ---
+  $$(".tab-btn").forEach(btn=>{
     btn.addEventListener('click', ()=>{
       $$(".tab-btn").forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -256,12 +228,10 @@ $$(".tab-btn").forEach(btn=>{
   });
 
   // --- tasks ---
-const taskInput = $("#taskInput");
-const taskList = $("#taskList");
-const addTaskBtn = $("#addTask");
-const clearDoneBtn = $("#clearDone");
-const taskSearch = $("#taskSearch");
-let taskFilter = '';
+  const taskInput = $("#taskInput");
+  const taskList = $("#taskList");
+  const addTaskBtn = $("#addTask");
+  const clearDoneBtn = $("#clearDone");
 
   function addTask(text){
     if(!text.trim()) return;
@@ -275,37 +245,25 @@ let taskFilter = '';
     t.done = !t.done; save(); renderTasks();
   }
 
-function deleteTask(id){
-  state.tasks = state.tasks.filter(t=>t.id!==id); save(); renderTasks();
-}
-
-function editTask(id){
-  const t = state.tasks.find(t=>t.id===id);
-  if(!t) return;
-  const newText = prompt('タスクを編集', t.text);
-  if(newText && newText.trim()){
-    t.text = newText.trim(); save(); renderTasks();
+  function deleteTask(id){
+    state.tasks = state.tasks.filter(t=>t.id!==id); save(); renderTasks();
   }
-}
 
-function renderTasks(){
-  taskList.innerHTML = '';
-  const tasks = state.tasks.filter(t=>t.text.toLowerCase().includes(taskFilter));
-  tasks.forEach(t=>{
-    const li = document.createElement('li');
-    li.className = 'task' + (t.done?' done':'');
-    li.innerHTML = `
-      <input type="checkbox" ${t.done?'checked':''} aria-label="done">
-      <div style="flex:1">${escapeHtml(t.text)}</div>
-      <button class="btn ghost sm edit" aria-label="edit">編集</button>
-      <button class="btn ghost sm del" aria-label="delete">削除</button>
-    `;
-    li.querySelector('input').addEventListener('change', ()=>toggleTask(t.id));
-    li.querySelector('.edit').addEventListener('click', ()=>editTask(t.id));
-    li.querySelector('.del').addEventListener('click', ()=>deleteTask(t.id));
-    taskList.appendChild(li);
-  });
-  const all = state.tasks.length;
+  function renderTasks(){
+    taskList.innerHTML = '';
+    state.tasks.forEach(t=>{
+      const li = document.createElement('li');
+      li.className = 'task' + (t.done?' done':'');
+      li.innerHTML = `
+        <input type="checkbox" ${t.done?'checked':''} aria-label="done">
+        <div style="flex:1">${escapeHtml(t.text)}</div>
+        <button class="btn ghost" aria-label="delete">削除</button>
+      `;
+      li.querySelector('input').addEventListener('change', ()=>toggleTask(t.id));
+      li.querySelector('button').addEventListener('click', ()=>deleteTask(t.id));
+      taskList.appendChild(li);
+    });
+    const all = state.tasks.length;
     const done = state.tasks.filter(t=>t.done).length;
     const open = all - done;
     $("#cntAll").textContent = `All ${all}`;
@@ -315,10 +273,10 @@ function renderTasks(){
 
   addTaskBtn.addEventListener('click', ()=>{ addTask(taskInput.value); taskInput.value=''; taskInput.focus(); });
   taskInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addTask(taskInput.value); taskInput.value=''; }});
-clearDoneBtn.addEventListener('click', ()=>{
-  state.tasks = state.tasks.filter(t=>!t.done); save(); renderTasks();
-});
-taskSearch.addEventListener('input', ()=>{ taskFilter = taskSearch.value.toLowerCase(); renderTasks(); });
+  clearDoneBtn.addEventListener('click', ()=>{
+    if(!confirm('完了したタスクを削除しますか？')) return;
+    state.tasks = state.tasks.filter(t=>!t.done); save(); renderTasks();
+  });
 
   // --- timer ---
   const workMins = $("#workMins");
@@ -467,7 +425,10 @@ taskSearch.addEventListener('input', ()=>{ taskFilter = taskSearch.value.toLower
   }
 
   saveNoteBtn.addEventListener('click', ()=>{ state.note = noteEl.value; save(); renderNote(); });
-  clearNoteBtn.addEventListener('click', ()=>{ state.note=''; noteEl.value=''; save(); renderNote(); });
+  clearNoteBtn.addEventListener('click', ()=>{
+    if(!confirm('ノートを削除しますか？')) return;
+    state.note=''; noteEl.value=''; save(); renderNote();
+  });
   noteEl.addEventListener('input', ()=>{ state.note = noteEl.value; save(); renderNote(); });
   document.addEventListener('keydown', (e)=>{
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
@@ -483,7 +444,6 @@ taskSearch.addEventListener('input', ()=>{ taskFilter = taskSearch.value.toLower
   // --- init ---
   function init(){
     load();
-    applyTheme();
     // tasks
     renderTasks();
     // timer
@@ -498,9 +458,9 @@ taskSearch.addEventListener('input', ()=>{ taskFilter = taskSearch.value.toLower
 
   // --- expose some hooks for Codex ---
   window.__app = {
-    state, save, load, renderTasks, addTask, deleteTask, toggleTask, editTask,
+    state, save, load, renderTasks, addTask, deleteTask, toggleTask,
     renderSessions, applySettings, startTimer, pauseTimer, resetTimer,
-    renderNote, applyTheme
+    renderNote
   };
 })();
 </script>
