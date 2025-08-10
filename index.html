@@ -112,15 +112,15 @@
         </div>
       </div>
       <div class="tabs" role="tablist" aria-label="sections">
-        <button id="tab-tasks" class="tab-btn active" data-tab="tasks" role="tab" aria-selected="true" aria-controls="tasks" tabindex="0">タスク</button>
-        <button id="tab-timer" class="tab-btn" data-tab="timer" role="tab" aria-selected="false" aria-controls="timer" tabindex="-1">タイマー</button>
-        <button id="tab-notes" class="tab-btn" data-tab="notes" role="tab" aria-selected="false" aria-controls="notes" tabindex="-1">ノート</button>
+        <button class="tab-btn active" data-tab="tasks" role="tab" aria-selected="true">タスク</button>
+        <button class="tab-btn" data-tab="timer" role="tab" aria-selected="false">タイマー</button>
+        <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false">ノート</button>
       </div>
     </div>
   </header>
 
   <main class="wrap">
-      <section id="tasks" class="grid tab" role="tabpanel" tabindex="0" aria-labelledby="tab-tasks">
+    <section id="tasks" class="grid tab">
       <div class="card">
         <h2 class="section-title">今日のタスク</h2>
         <div class="row wrap">
@@ -144,7 +144,7 @@
       </div>
     </section>
 
-      <section id="timer" class="grid tab" role="tabpanel" tabindex="0" aria-labelledby="tab-timer" hidden>
+    <section id="timer" class="grid tab" style="display:none">
       <div class="card">
         <h2 class="section-title">ポモドーロ</h2>
         <div class="row wrap">
@@ -164,7 +164,7 @@
       </div>
     </section>
 
-      <section id="notes" class="grid tab" role="tabpanel" tabindex="0" aria-labelledby="tab-notes" hidden>
+    <section id="notes" class="grid tab" style="display:none">
       <div class="card">
         <h2 class="section-title">クイックノート</h2>
         <textarea id="note" placeholder="ここにメモ。Ctrl/Cmd + S で保存"></textarea>
@@ -217,34 +217,15 @@
     }catch(e){ console.warn('save failed', e); }
   }
 
-    // --- tabs ---
-    const tabBtns = $$(".tab-btn");
-    const tabs = $$(".tab");
-    function activateTab(name){
-      tabBtns.forEach(btn=>{
-        const active = btn.dataset.tab === name;
-        btn.classList.toggle('active', active);
-        btn.setAttribute('aria-selected', active ? 'true' : 'false');
-        btn.tabIndex = active ? 0 : -1;
-      });
-      tabs.forEach(sec=>{
-        const show = sec.id === name;
-        sec.hidden = !show;
-        sec.setAttribute('aria-hidden', show ? 'false' : 'true');
-      });
-    }
-    tabBtns.forEach((btn, idx)=>{
-      btn.addEventListener('click', ()=>activateTab(btn.dataset.tab));
-      btn.addEventListener('keydown', e=>{
-        if(e.key==='ArrowRight' || e.key==='ArrowLeft'){
-          e.preventDefault();
-          const dir = e.key==='ArrowRight'?1:-1;
-          let newIdx = (idx + dir + tabBtns.length) % tabBtns.length;
-          tabBtns[newIdx].focus();
-        }
-      });
+  // --- tabs ---
+  $$(".tab-btn").forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $$(".tab-btn").forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const name = btn.dataset.tab;
+      $$(".tab").forEach(sec=>sec.style.display = (sec.id===name)?'grid':'none');
     });
-    activateTab($(".tab-btn.active").dataset.tab);
+  });
 
   // --- tasks ---
   const taskInput = $("#taskInput");
@@ -293,6 +274,7 @@
   addTaskBtn.addEventListener('click', ()=>{ addTask(taskInput.value); taskInput.value=''; taskInput.focus(); });
   taskInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addTask(taskInput.value); taskInput.value=''; }});
   clearDoneBtn.addEventListener('click', ()=>{
+    if(!confirm('完了したタスクを削除しますか？')) return;
     state.tasks = state.tasks.filter(t=>!t.done); save(); renderTasks();
   });
 
@@ -443,7 +425,10 @@
   }
 
   saveNoteBtn.addEventListener('click', ()=>{ state.note = noteEl.value; save(); renderNote(); });
-  clearNoteBtn.addEventListener('click', ()=>{ state.note=''; noteEl.value=''; save(); renderNote(); });
+  clearNoteBtn.addEventListener('click', ()=>{
+    if(!confirm('ノートを削除しますか？')) return;
+    state.note=''; noteEl.value=''; save(); renderNote();
+  });
   noteEl.addEventListener('input', ()=>{ state.note = noteEl.value; save(); renderNote(); });
   document.addEventListener('keydown', (e)=>{
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
